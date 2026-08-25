@@ -1,0 +1,722 @@
+<title>NYC Airbnb Price Study</title>
+<style>
+  :root{
+    --page:            #f9f9f7;
+    --surface:         #fcfcfb;
+    --surface-raised:  #ffffff;
+    --ink:             #0b0b0b;
+    --ink-secondary:   #52514e;
+    --ink-muted:       #898781;
+    --hairline:        #e1e0d9;
+    --border:          rgba(11,11,11,0.10);
+    --accent:          #2a78d6;   /* Manhattan blue — doubles as page accent */
+    --accent-ink:      #ffffff;
+    --accent-wash:     #eaf1fb;
+
+    --boro-manhattan:  #2a78d6;
+    --boro-brooklyn:   #eb6834;
+    --boro-queens:     #1baf7a;
+    --boro-bronx:      #eda100;
+    --boro-staten:     #e87ba4;
+
+    --room-entire:     #4a3aa7;
+    --room-private:    #e34948;
+
+    --status-good:     #0ca30c;
+    --status-good-wash:#e9f7e9;
+    --status-critical: #d03b3b;
+    --status-critical-wash: #fbeaea;
+
+    --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+    --font-body:    "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono:    "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --page:            #0d0d0d;
+      --surface:         #1a1a19;
+      --surface-raised:  #202020;
+      --ink:             #ffffff;
+      --ink-secondary:   #c3c2b7;
+      --ink-muted:       #8f8d86;
+      --hairline:        #2c2c2a;
+      --border:          rgba(255,255,255,0.12);
+      --accent:          #3987e5;
+      --accent-ink:      #ffffff;
+      --accent-wash:     rgba(57,135,229,0.14);
+
+      --boro-manhattan:  #3987e5;
+      --boro-brooklyn:   #d95926;
+      --boro-queens:     #199e70;
+      --boro-bronx:      #c98500;
+      --boro-staten:     #d55181;
+
+      --room-entire:     #9085e9;
+      --room-private:    #e66767;
+
+      --status-good:     #0ca30c;
+      --status-good-wash: rgba(12,163,12,0.14);
+      --status-critical: #e66767;
+      --status-critical-wash: rgba(230,103,103,0.14);
+    }
+  }
+  :root[data-theme="dark"]{
+    --page:            #0d0d0d;
+    --surface:         #1a1a19;
+    --surface-raised:  #202020;
+    --ink:             #ffffff;
+    --ink-secondary:   #c3c2b7;
+    --ink-muted:       #8f8d86;
+    --hairline:        #2c2c2a;
+    --border:          rgba(255,255,255,0.12);
+    --accent:          #3987e5;
+    --accent-ink:      #ffffff;
+    --accent-wash:     rgba(57,135,229,0.14);
+
+    --boro-manhattan:  #3987e5;
+    --boro-brooklyn:   #d95926;
+    --boro-queens:     #199e70;
+    --boro-bronx:      #c98500;
+    --boro-staten:     #d55181;
+
+    --room-entire:     #9085e9;
+    --room-private:    #e66767;
+
+    --status-good:     #0ca30c;
+    --status-good-wash: rgba(12,163,12,0.14);
+    --status-critical: #e66767;
+    --status-critical-wash: rgba(230,103,103,0.14);
+  }
+
+  *{ box-sizing: border-box; }
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  body{
+    margin:0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap{ max-width: 920px; margin: 0 auto; padding: 0 24px; }
+
+  a{ color: var(--accent); text-decoration-thickness: 1.5px; text-underline-offset: 2px; }
+  a:focus-visible, button:focus-visible, select:focus-visible{
+    outline: 2.5px solid var(--accent); outline-offset: 2px; border-radius: 4px;
+  }
+
+  /* ---------- header / hero ---------- */
+  header.hero{
+    border-bottom: 1px solid var(--hairline);
+    padding: 56px 0 40px;
+  }
+  .eyebrow{
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .eyebrow .dot{ width:6px; height:6px; border-radius:50%; background: var(--status-good); }
+  h1{
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(32px, 5vw, 48px);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    margin: 0 0 16px;
+    text-wrap: balance;
+    max-width: 14ch;
+  }
+  .hero p.lede{
+    font-size: 18px;
+    color: var(--ink-secondary);
+    max-width: 62ch;
+    margin: 0 0 28px;
+  }
+  .hero-links{ display:flex; flex-wrap:wrap; gap: 10px; }
+  .pill-link{
+    font-family: var(--font-mono);
+    font-size: 13px;
+    display:inline-flex; align-items:center; gap:7px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--ink);
+    text-decoration: none;
+    background: var(--surface-raised);
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  .pill-link:hover{ border-color: var(--accent); transform: translateY(-1px); }
+  .pill-link.primary{ background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+
+  /* ---------- stat strip ---------- */
+  .stat-strip{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--hairline);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-top: 36px;
+  }
+  .stat{
+    background: var(--surface-raised);
+    padding: 20px 18px;
+  }
+  .stat .value{
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 26px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  .stat .label{
+    margin-top: 6px;
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    line-height: 1.35;
+  }
+
+  /* ---------- sections ---------- */
+  section{ padding: 56px 0; border-bottom: 1px solid var(--hairline); }
+  section:last-of-type{ border-bottom: none; }
+  .section-head{ display:flex; align-items:baseline; gap: 14px; margin-bottom: 28px; }
+  .section-num{
+    font-family: var(--font-mono);
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  h2{
+    font-family: var(--font-display);
+    font-size: 27px;
+    font-weight: 600;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .section-intro{
+    color: var(--ink-secondary);
+    max-width: 68ch;
+    margin: -14px 0 30px;
+    font-size: 15.5px;
+  }
+  h3{
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-secondary);
+    margin: 0 0 18px;
+  }
+
+  /* ---------- pipeline diagram ---------- */
+  .pipeline{
+    display:flex; align-items:stretch; gap:0;
+    overflow-x:auto; padding-bottom: 6px;
+  }
+  .pipe-step{
+    flex: 1 1 0;
+    min-width: 148px;
+    background: var(--surface-raised);
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
+    padding: 16px 16px 18px;
+    position: relative;
+  }
+  .pipe-step + .pipe-step{ margin-left: 28px; }
+  .pipe-step::before{
+    content: "→";
+    position: absolute;
+    left: -24px; top: 50%; transform: translateY(-50%);
+    color: var(--ink-muted);
+    font-size: 16px;
+  }
+  .pipe-step .tag{
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display:block;
+    margin-bottom: 8px;
+  }
+  .pipe-step .name{ font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .pipe-step .desc{ font-size: 12.5px; color: var(--ink-muted); line-height:1.4; }
+
+  /* ---------- bar chart (hand-built, HTML/CSS) ---------- */
+  .chart{ margin-bottom: 8px; }
+  .chart-title{ font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .chart-note{ font-size: 12.5px; color: var(--ink-muted); margin-bottom: 18px; }
+  .bar-row{
+    display:grid;
+    grid-template-columns: 128px 1fr 74px;
+    align-items:center;
+    gap: 12px;
+    padding: 7px 0;
+  }
+  .bar-row .bar-label{
+    font-size: 13.5px;
+    color: var(--ink-secondary);
+    display:flex; align-items:center; gap:8px;
+  }
+  .bar-row .swatch{ width:9px; height:9px; border-radius:2px; flex:none; }
+  .bar-track{
+    position:relative;
+    height: 18px;
+    background: var(--hairline);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar-fill{
+    position:absolute; left:0; top:0; bottom:0;
+    border-radius: 4px 6px 6px 4px;
+    transition: filter .15s ease;
+  }
+  .bar-row:hover .bar-fill{ filter: brightness(1.08); }
+  .bar-value{
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 13px;
+    text-align:right;
+    color: var(--ink);
+  }
+  .legend{ display:flex; flex-wrap:wrap; gap: 16px; margin: 4px 0 22px; }
+  .legend-item{ display:flex; align-items:center; gap:7px; font-size:12.5px; color: var(--ink-secondary); }
+  .legend-swatch{ width:10px; height:10px; border-radius:2px; }
+
+  /* grouped bars (room type x borough) */
+  .grouped-row{ padding: 10px 0; border-top: 1px solid var(--hairline); }
+  .grouped-row:first-child{ border-top: none; }
+  .grouped-row .grouped-label{ font-size: 13.5px; font-weight: 600; margin-bottom: 8px; }
+  .grouped-bar-line{ display:grid; grid-template-columns: 96px 1fr 60px; align-items:center; gap:10px; margin-bottom:5px; }
+  .grouped-bar-line .k{ font-size: 12px; color: var(--ink-muted); }
+  .grouped-bar-line .v{ font-family: var(--font-mono); font-size:12.5px; text-align:right; font-variant-numeric: tabular-nums;}
+
+  /* ---------- cards ---------- */
+  .card-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .model-card{
+    background: var(--surface-raised);
+    border: 1px solid var(--hairline);
+    border-radius: 14px;
+    padding: 22px;
+    position: relative;
+  }
+  .model-card.winner{ border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+  .model-card .winner-tag{
+    position:absolute; top:-11px; right:18px;
+    background: var(--accent); color: var(--accent-ink);
+    font-family: var(--font-mono); font-size:11px; letter-spacing:.04em;
+    padding: 4px 10px; border-radius: 999px;
+  }
+  .model-card .model-name{ font-family: var(--font-display); font-size: 19px; font-weight:600; margin-bottom: 14px; }
+  .metric-row{ display:flex; justify-content:space-between; padding: 8px 0; border-top: 1px solid var(--hairline); }
+  .metric-row:first-of-type{ border-top:none; }
+  .metric-row .m-label{ font-size:13px; color: var(--ink-muted); }
+  .metric-row .m-value{ font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size:14.5px; font-weight:600; }
+
+  .host-cards{ display:grid; grid-template-columns: repeat(3,1fr); gap:14px; margin-top: 8px;}
+  .host-card{ background: var(--surface-raised); border:1px solid var(--hairline); border-radius:12px; padding:16px; }
+  .host-card .h-title{ font-size:13px; font-weight:600; margin-bottom:10px; }
+  .host-card .h-metric{ font-family: var(--font-mono); font-size:20px; font-variant-numeric: tabular-nums; }
+  .host-card .h-metric-label{ font-size:11.5px; color: var(--ink-muted); margin-bottom: 10px;}
+
+  /* ---------- price lookup ---------- */
+  .lookup{
+    background: var(--surface-raised);
+    border: 1px solid var(--hairline);
+    border-radius: 16px;
+    padding: 28px;
+  }
+  .lookup-controls{ display:flex; flex-wrap:wrap; gap: 14px; margin-bottom: 22px; }
+  .field{ display:flex; flex-direction:column; gap:6px; }
+  .field label{ font-size: 12px; color: var(--ink-muted); text-transform:uppercase; letter-spacing:.04em; }
+  select{
+    font-family: var(--font-body);
+    font-size: 14.5px;
+    padding: 10px 14px;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink);
+    min-width: 200px;
+  }
+  .lookup-result{
+    display:flex; align-items:baseline; gap: 16px;
+    flex-wrap: wrap;
+    background: var(--accent-wash);
+    border-radius: 12px;
+    padding: 20px 22px;
+  }
+  .lookup-result .lr-price{
+    font-family: var(--font-mono);
+    font-size: 40px;
+    font-weight: 600;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .lookup-result .lr-copy{ font-size: 13.5px; color: var(--ink-secondary); max-width: 44ch; }
+  .lookup-sample-count{ font-family: var(--font-mono); font-size:12px; color:var(--ink-muted); margin-top: 14px; }
+
+  /* ---------- flag table ---------- */
+  .badge{
+    display:inline-flex; align-items:center; gap:5px;
+    font-family: var(--font-mono); font-size: 11.5px;
+    padding: 3px 9px; border-radius: 999px;
+  }
+  .badge.critical{ background: var(--status-critical-wash); color: var(--status-critical); }
+  .badge.good{ background: var(--status-good-wash); color: var(--status-good); }
+  .badge .dot{ width:6px; height:6px; border-radius:50%; background: currentColor; }
+
+  /* ---------- limitations list ---------- */
+  .limit-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:14px; }
+  .limit-list li{
+    display:grid; grid-template-columns: 22px 1fr; gap:12px;
+    font-size: 14.5px; color: var(--ink-secondary);
+  }
+  .limit-list li::before{ content:"—"; color: var(--ink-muted); }
+
+  .tech-tags{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tech-tag{
+    font-family: var(--font-mono); font-size:12px;
+    padding: 6px 12px; border-radius: 999px;
+    border: 1px solid var(--border); color: var(--ink-secondary);
+  }
+
+  footer{ padding: 40px 0 64px; }
+  footer .foot-row{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:24px; }
+  footer .foot-note{ font-size: 12.5px; color: var(--ink-muted); }
+
+  @media (max-width: 720px){
+    .stat-strip{ grid-template-columns: repeat(2,1fr); }
+    .card-grid{ grid-template-columns: 1fr; }
+    .host-cards{ grid-template-columns: 1fr; }
+    .bar-row{ grid-template-columns: 92px 1fr 60px; }
+    .pipeline{ flex-direction: column; }
+    .pipe-step + .pipe-step{ margin-left:0; margin-top: 28px; }
+    .pipe-step::before{ content:"↓"; left: 50%; top:-22px; transform: translateX(-50%); }
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span> Business analytics case study — MSBA mini project</div>
+    <h1>What should this listing actually cost?</h1>
+    <p class="lede">
+      A pricing study of 48,884 NYC Airbnb listings: an ETL pipeline into a SQL warehouse, seven
+      business questions answered in SQL, and a regression model that flags listings priced well
+      above or below what comparable listings command.
+    </p>
+    <div class="hero-links">
+      <a class="pill-link primary" href="https://github.com/vanshika1302/Airbnb-Smart-Price-Optimizer" target="_blank" rel="noopener">↗ View full code on GitHub</a>
+      <a class="pill-link" href="https://github.com/vanshika1302/Airbnb-Smart-Price-Optimizer/blob/main/notebooks/eda_and_modeling.ipynb" target="_blank" rel="noopener">Notebook (EDA + modeling)</a>
+      <a class="pill-link" href="https://github.com/vanshika1302/Airbnb-Smart-Price-Optimizer/blob/main/sql/analysis_queries.sql" target="_blank" rel="noopener">SQL queries</a>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat"><div class="value">48,884</div><div class="label">Listings cleaned &amp; analyzed</div></div>
+      <div class="stat"><div class="value">$172.90</div><div class="label">Avg. Manhattan price / night</div></div>
+      <div class="stat"><div class="value">0.498</div><div class="label">Random Forest R² (vs. 0.354 linear)</div></div>
+      <div class="stat"><div class="value">±$42.31</div><div class="label">Avg. model error (MAE)</div></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="problem">
+    <div class="section-head"><span class="section-num">01</span><h2>The business problem</h2></div>
+    <p class="section-intro" style="margin-top:0;">
+      Hosts largely price by intuition or by copying a neighbor's listing — which leaves money on
+      the table in both directions. An underpriced entire-home listing loses revenue every booked
+      night; an overpriced one just sits vacant. This project builds a data-driven reference price
+      — "what does a listing like this typically go for?" — a host or a pricing team can check a
+      listing against.
+    </p>
+  </section>
+
+  <section id="pipeline">
+    <div class="section-head"><span class="section-num">02</span><h2>How the data moves</h2></div>
+    <p class="section-intro" style="margin-top:0;">
+      Runs entirely on DuckDB locally — a Snowflake-compatible SQL surface with zero setup — so the
+      whole pipeline executes on any machine with one command. <code>sql/snowflake_schema.sql</code>
+      documents the equivalent Snowflake DDL for when a real warehouse is available.
+    </p>
+    <div class="pipeline">
+      <div class="pipe-step"><span class="tag">Extract</span><div class="name">Raw CSV</div><div class="desc">48,895 listings — location, room type, price, reviews, availability</div></div>
+      <div class="pipe-step"><span class="tag">Transform</span><div class="name">Clean + engineer</div><div class="desc">Drop $0 prices, cap outliers, build host &amp; availability buckets</div></div>
+      <div class="pipe-step"><span class="tag">Load</span><div class="name">DuckDB warehouse</div><div class="desc">raw_listings + clean_listings tables</div></div>
+      <div class="pipe-step"><span class="tag">Analyze</span><div class="name">SQL + Python</div><div class="desc">7 business queries, EDA, regression models</div></div>
+      <div class="pipe-step"><span class="tag">Apply</span><div class="name">Price flags</div><div class="desc">Listings 40%+ off the model's expected price</div></div>
+    </div>
+  </section>
+
+  <section id="market">
+    <div class="section-head"><span class="section-num">03</span><h2>What the market looks like</h2></div>
+    <p class="section-intro" style="margin-top:0;">Pulled straight from <code>sql/analysis_queries.sql</code>, run against the warehouse.</p>
+
+    <div class="chart">
+      <div class="chart-title">Average price by borough</div>
+      <div class="chart-note">Outlier listings (top 1% by price) excluded · n = 48,410</div>
+
+      <div class="bar-row" title="Manhattan: $172.90 avg, 21,312 listings">
+        <div class="bar-label"><span class="swatch" style="background:var(--boro-manhattan)"></span>Manhattan</div>
+        <div class="bar-track"><div class="bar-fill" style="width:100%; background:var(--boro-manhattan)"></div></div>
+        <div class="bar-value">$172.90</div>
+      </div>
+      <div class="bar-row" title="Brooklyn: $115.92 avg, 19,992 listings">
+        <div class="bar-label"><span class="swatch" style="background:var(--boro-brooklyn)"></span>Brooklyn</div>
+        <div class="bar-track"><div class="bar-fill" style="width:67.1%; background:var(--boro-brooklyn)"></div></div>
+        <div class="bar-value">$115.92</div>
+      </div>
+      <div class="bar-row" title="Staten Island: $94.24 avg, 369 listings">
+        <div class="bar-label"><span class="swatch" style="background:var(--boro-staten)"></span>Staten Island</div>
+        <div class="bar-track"><div class="bar-fill" style="width:54.5%; background:var(--boro-staten)"></div></div>
+        <div class="bar-value">$94.24</div>
+      </div>
+      <div class="bar-row" title="Queens: $94.10 avg, 5,650 listings">
+        <div class="bar-label"><span class="swatch" style="background:var(--boro-queens)"></span>Queens</div>
+        <div class="bar-track"><div class="bar-fill" style="width:54.4%; background:var(--boro-queens)"></div></div>
+        <div class="bar-value">$94.10</div>
+      </div>
+      <div class="bar-row" title="Bronx: $83.86 avg, 1,087 listings">
+        <div class="bar-label"><span class="swatch" style="background:var(--boro-bronx)"></span>Bronx</div>
+        <div class="bar-track"><div class="bar-fill" style="width:48.5%; background:var(--boro-bronx)"></div></div>
+        <div class="bar-value">$83.86</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="roomtype">
+    <div class="section-head"><span class="section-num">04</span><h2>The entire-home premium</h2></div>
+    <p class="section-intro" style="margin-top:0;">
+      Within every borough, renting the whole place costs roughly 2–3× a private room — the single
+      strongest price lever after location itself.
+    </p>
+
+    <div class="legend">
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--room-entire)"></span>Entire home/apt</div>
+      <div class="legend-item"><span class="legend-swatch" style="background:var(--room-private)"></span>Private room</div>
+    </div>
+
+    <div id="grouped-chart"></div>
+  </section>
+
+  <section id="hosts">
+    <div class="section-head"><span class="section-num">05</span><h2>Casual hosts vs. portfolio hosts</h2></div>
+    <p class="section-intro" style="margin-top:0;">
+      Hosts running 5+ listings price about 12% above solo hosts — and keep units available far more
+      of the year, consistent with professionals managing for occupancy rather than renting a spare room.
+    </p>
+    <div class="host-cards">
+      <div class="host-card">
+        <div class="h-title">Single-listing hosts</div>
+        <div class="h-metric-label">31,966 hosts</div>
+        <div class="h-metric">$142.54</div>
+        <div class="h-metric-label" style="margin-top:8px; margin-bottom:0;">avg. price · 78 days/yr available</div>
+      </div>
+      <div class="host-card">
+        <div class="h-title">Small portfolios (2–5)</div>
+        <div class="h-metric-label">4,801 hosts</div>
+        <div class="h-metric">$115.24</div>
+        <div class="h-metric-label" style="margin-top:8px; margin-bottom:0;">avg. price · 147 days/yr available</div>
+      </div>
+      <div class="host-card">
+        <div class="h-title">Large portfolios (5+)</div>
+        <div class="h-metric-label">342 hosts</div>
+        <div class="h-metric">$159.27</div>
+        <div class="h-metric-label" style="margin-top:8px; margin-bottom:0;">avg. price · 255 days/yr available</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="model">
+    <div class="section-head"><span class="section-num">06</span><h2>Predicting price</h2></div>
+    <p class="section-intro" style="margin-top:0;">
+      Trained on location, room type, minimum-night policy, review activity, and host portfolio size.
+      Random Forest wins because pricing is interaction-driven — "entire home <em>in Manhattan</em>"
+      isn't just the sum of two separate effects.
+    </p>
+
+    <div class="card-grid">
+      <div class="model-card">
+        <div class="model-name">Linear Regression</div>
+        <div class="metric-row"><span class="m-label">MAE</span><span class="m-value">$48.08</span></div>
+        <div class="metric-row"><span class="m-label">RMSE</span><span class="m-value">$83.85</span></div>
+        <div class="metric-row"><span class="m-label">R²</span><span class="m-value">0.354</span></div>
+      </div>
+      <div class="model-card winner">
+        <span class="winner-tag">Best fit</span>
+        <div class="model-name">Random Forest</div>
+        <div class="metric-row"><span class="m-label">MAE</span><span class="m-value">$42.31</span></div>
+        <div class="metric-row"><span class="m-label">RMSE</span><span class="m-value">$73.88</span></div>
+        <div class="metric-row"><span class="m-label">R²</span><span class="m-value">0.498</span></div>
+      </div>
+    </div>
+
+    <div class="chart" style="margin-top:36px;">
+      <div class="chart-title">What drives the Random Forest's predictions</div>
+      <div class="chart-note">Top 7 features by importance</div>
+
+      <div class="bar-row" title="Room type: Private room — 0.477"><div class="bar-label">Private room</div><div class="bar-track"><div class="bar-fill" style="width:100%; background:var(--accent)"></div></div><div class="bar-value">.477</div></div>
+      <div class="bar-row" title="Longitude — 0.121"><div class="bar-label">Longitude</div><div class="bar-track"><div class="bar-fill" style="width:25.4%; background:var(--accent); opacity:.86"></div></div><div class="bar-value">.121</div></div>
+      <div class="bar-row" title="Latitude — 0.104"><div class="bar-label">Latitude</div><div class="bar-track"><div class="bar-fill" style="width:21.8%; background:var(--accent); opacity:.78"></div></div><div class="bar-value">.104</div></div>
+      <div class="bar-row" title="Room type: Shared room — 0.100"><div class="bar-label">Shared room</div><div class="bar-track"><div class="bar-fill" style="width:21%; background:var(--accent); opacity:.72"></div></div><div class="bar-value">.100</div></div>
+      <div class="bar-row" title="Availability (days/yr) — 0.052"><div class="bar-label">Availability</div><div class="bar-track"><div class="bar-fill" style="width:10.9%; background:var(--accent); opacity:.6"></div></div><div class="bar-value">.052</div></div>
+      <div class="bar-row" title="Borough: Manhattan — 0.035"><div class="bar-label">Is Manhattan</div><div class="bar-track"><div class="bar-fill" style="width:7.3%; background:var(--accent); opacity:.5"></div></div><div class="bar-value">.035</div></div>
+      <div class="bar-row" title="Minimum nights — 0.032"><div class="bar-label">Minimum nights</div><div class="bar-track"><div class="bar-fill" style="width:6.7%; background:var(--accent); opacity:.42"></div></div><div class="bar-value">.032</div></div>
+    </div>
+  </section>
+
+  <section id="lookup">
+    <div class="section-head"><span class="section-num">07</span><h2>Try it: what's the going rate?</h2></div>
+    <p class="section-intro" style="margin-top:0;">
+      Pick a borough and room type to see the average nightly price across comparable listings in
+      this dataset — the same market-rate baseline the model builds on.
+    </p>
+
+    <div class="lookup">
+      <div class="lookup-controls">
+        <div class="field">
+          <label for="sel-borough">Borough</label>
+          <select id="sel-borough">
+            <option value="Manhattan">Manhattan</option>
+            <option value="Brooklyn">Brooklyn</option>
+            <option value="Queens">Queens</option>
+            <option value="Staten Island">Staten Island</option>
+            <option value="Bronx">Bronx</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="sel-room">Room type</label>
+          <select id="sel-room">
+            <option value="Entire home/apt">Entire home/apt</option>
+            <option value="Private room">Private room</option>
+            <option value="Shared room">Shared room</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="lookup-result">
+        <div class="lr-price" id="lr-price">$216.96</div>
+        <div class="lr-copy" id="lr-copy">Average nightly price across comparable Manhattan · Entire home/apt listings.</div>
+      </div>
+      <div class="lookup-sample-count" id="lr-count">based on 12,905 listings</div>
+    </div>
+  </section>
+
+  <section id="flags">
+    <div class="section-head"><span class="section-num">08</span><h2>Listings the model flags</h2></div>
+    <p class="section-intro" style="margin-top:0;">
+      Any listing priced 40%+ above or below the model's expected price gets flagged — a concrete
+      list a pricing or host-support team could act on directly (full lists in the notebook).
+    </p>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--surface-raised); border:1px solid var(--hairline); border-radius:10px;">
+        <span style="font-size:14px;">"Stunning, Sunny Tribeca Loft" — Chinatown, Manhattan</span>
+        <span class="badge critical"><span class="dot"></span>$799 vs. ~$173 expected</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--surface-raised); border:1px solid var(--hairline); border-radius:10px;">
+        <span style="font-size:14px;">"Unique Brooklyn Brownstone" — Cobble Hill, Brooklyn</span>
+        <span class="badge critical"><span class="dot"></span>$795 vs. ~$116 expected</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:var(--surface-raised); border:1px solid var(--hairline); border-radius:10px;">
+        <span style="font-size:14px;">6,193 listings flagged overpriced · 1,889 flagged underpriced</span>
+        <span class="badge good"><span class="dot"></span>see notebook §5</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="limitations">
+    <div class="section-head"><span class="section-num">09</span><h2>Limitations &amp; what's next</h2></div>
+    <ul class="limit-list">
+      <li>This 2019 snapshot has no bedroom, bathroom, or amenity counts — a production pricing tool would use a fuller Inside Airbnb export.</li>
+      <li>Runs on DuckDB for zero-setup reproducibility; <code>sql/snowflake_schema.sql</code> is ready for a real Snowflake account.</li>
+      <li>Data is from 2019 — a refreshed pull would better reflect current pricing.</li>
+      <li>A gradient-boosted model (XGBoost/LightGBM) is the natural next iteration once the feature set is richer.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <div class="foot-row">
+      <div class="tech-tags">
+        <span class="tech-tag">Python</span>
+        <span class="tech-tag">pandas</span>
+        <span class="tech-tag">scikit-learn</span>
+        <span class="tech-tag">SQL</span>
+        <span class="tech-tag">DuckDB</span>
+        <span class="tech-tag">Snowflake-ready</span>
+      </div>
+      <a class="pill-link primary" href="https://github.com/vanshika1302/Airbnb-Smart-Price-Optimizer" target="_blank" rel="noopener">↗ Full repo on GitHub</a>
+    </div>
+    <div class="foot-note">Airbnb Smart Price Optimizer — MSBA business analytics mini project · NYC Airbnb Open Data, 2019 snapshot</div>
+  </footer>
+</main>
+
+<script>
+(function(){
+  // ---- grouped bar chart: entire-home vs private-room by borough ----
+  var data = [
+    {name:"Manhattan", color:"var(--boro-manhattan)", entire:216.96, private:106.55},
+    {name:"Brooklyn", color:"var(--boro-brooklyn)", entire:165.41, private:72.13},
+    {name:"Queens", color:"var(--boro-queens)", entire:140.81, private:67.76},
+    {name:"Staten Island", color:"var(--boro-staten)", entire:131.09, private:62.29},
+    {name:"Bronx", color:"var(--boro-bronx)", entire:125.20, private:63.15}
+  ];
+  var max = 220;
+  var html = data.map(function(d){
+    var eW = Math.round((d.entire/max)*100);
+    var pW = Math.round((d.private/max)*100);
+    return (
+      '<div class="grouped-row">' +
+        '<div class="grouped-label">' + d.name + '</div>' +
+        '<div class="grouped-bar-line"><span class="k">Entire home</span>' +
+          '<div class="bar-track"><div class="bar-fill" style="width:' + eW + '%; background:var(--room-entire)"></div></div>' +
+          '<span class="v">$' + d.entire.toFixed(2) + '</span></div>' +
+        '<div class="grouped-bar-line"><span class="k">Private room</span>' +
+          '<div class="bar-track"><div class="bar-fill" style="width:' + pW + '%; background:var(--room-private)"></div></div>' +
+          '<span class="v">$' + d.private.toFixed(2) + '</span></div>' +
+      '</div>'
+    );
+  }).join("");
+  document.getElementById("grouped-chart").innerHTML = html;
+
+  // ---- interactive price lookup ----
+  var priceTable = {
+    "Manhattan":     {"Entire home/apt": [216.96, 12905], "Private room": [106.55, 7930], "Shared room": [84.09, 477]},
+    "Brooklyn":      {"Entire home/apt": [165.41, 9480],  "Private room": [72.13, 10101], "Shared room": [50.77, 411]},
+    "Queens":        {"Entire home/apt": [140.81, 2087],  "Private room": [67.76, 3368],  "Shared room": [49.31, 195]},
+    "Staten Island": {"Entire home/apt": [131.09, 172],   "Private room": [62.29, 188],   "Shared room": [57.44, 9]},
+    "Bronx":         {"Entire home/apt": [125.20, 378],   "Private room": [63.15, 650],   "Shared room": [47.25, 59]}
+  };
+  var boroSel = document.getElementById("sel-borough");
+  var roomSel = document.getElementById("sel-room");
+  var priceEl = document.getElementById("lr-price");
+  var copyEl = document.getElementById("lr-copy");
+  var countEl = document.getElementById("lr-count");
+
+  function update(){
+    var b = boroSel.value, r = roomSel.value;
+    var row = priceTable[b][r];
+    priceEl.textContent = "$" + row[0].toFixed(2);
+    copyEl.textContent = "Average nightly price across comparable " + b + " · " + r + " listings.";
+    countEl.textContent = "based on " + row[1].toLocaleString() + " listings";
+  }
+  boroSel.addEventListener("change", update);
+  roomSel.addEventListener("change", update);
+})();
+</script>

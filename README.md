@@ -1,5 +1,9 @@
 # Airbnb Smart Price Optimizer
 
+**[View the live case study →](https://claude.ai/code/artifact/57ea9a2f-1d1f-45d5-be9f-37ce6165dcc2)**
+An interactive one-page walkthrough of this project's findings, model comparison, and a live
+price-lookup tool. (Source: `dashboard.html` in this repo.)
+
 A mini business-analytics project: given a listing's location, room type, host profile, and
 review activity, recommend a reasonable nightly price and flag listings that look meaningfully
 over- or under-priced relative to comparable listings.
@@ -65,6 +69,7 @@ Python (pandas, scikit-learn), SQL, DuckDB (Snowflake-compatible SQL surface), J
 ## Repository structure
 
 ```
+dashboard.html                  live case-study page (source for the hosted link above)
 data/
   raw/AB_NYC_2019.csv          source extract
   processed/                    warehouse + saved query results (generated)
