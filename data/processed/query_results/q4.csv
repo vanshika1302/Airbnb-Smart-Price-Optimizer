@@ -1,0 +1,5 @@
+availability_bucket,n_listings,avg_reviews,avg_price
+never_available,17412,8.0,125.07
+low_availability,11634,27.9,132.7
+medium_availability,5234,33.7,143.39
+high_availability,14130,35.0,154.84

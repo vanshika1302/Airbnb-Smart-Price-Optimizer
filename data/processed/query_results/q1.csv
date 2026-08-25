@@ -1,0 +1,6 @@
+neighbourhood_group,n_listings,avg_price,median_price,min_price,max_price
+Manhattan,21312,172.9,149.0,10,799
+Brooklyn,19992,115.92,90.0,10,795
+Staten Island,369,94.24,75.0,13,700
+Queens,5650,94.1,75.0,10,750
+Bronx,1087,83.86,65.0,10,680

@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+
+# Regenerable local warehouse (recreated by etl/run_pipeline.py)
+data/processed/airbnb_warehouse.duckdb

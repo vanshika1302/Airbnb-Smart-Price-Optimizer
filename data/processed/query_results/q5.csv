@@ -1,0 +1,4 @@
+host_size_bucket,n_hosts,n_listings,avg_price,avg_availability_days
+large_portfolio_host,342,4738,159.27,255.1
+single_listing_host,31966,31966,142.54,78.0
+small_portfolio_host,4801,11706,115.24,147.3
