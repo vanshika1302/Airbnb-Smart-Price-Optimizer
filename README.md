@@ -1,8 +1,8 @@
 # Airbnb Smart Price Optimizer
 
-**[View the live case study →](https://claude.ai/code/artifact/57ea9a2f-1d1f-45d5-be9f-37ce6165dcc2)**
+**[View the live case study →](https://vanshika1302.github.io/Airbnb-Smart-Price-Optimizer/)**
 An interactive one-page walkthrough of this project's findings, model comparison, and a live
-price-lookup tool. (Source: `dashboard.html` in this repo.)
+price-lookup tool, hosted directly from this repo via GitHub Pages. (Source: `index.html`.)
 
 A mini business-analytics project: given a listing's location, room type, host profile, and
 review activity, recommend a reasonable nightly price and flag listings that look meaningfully
